@@ -1,27 +1,27 @@
 # Sony CrSDK REST API Server
 
-REST API server para controlar cámaras Sony (Alpha/Cinema Line) y CNC con GRBL a través de HTTP desde cualquier cliente en la red local.
+REST API server to control Sony cameras (Alpha/Cinema Line) and CNC machines with GRBL via HTTP from any client on the local network.
 
-## Resumen
+## Overview
 
-Este servidor expone las funciones del Sony Camera Remote SDK v2.00.00 y control CNC/GRBL como endpoints REST, permitiendo:
+This server exposes Sony Camera Remote SDK v2.00.00 functions and GRBL/CNC control as REST endpoints, enabling:
 
-- Descubrimiento y conexión de cámaras via USB/Ethernet
-- Control remoto completo (captura, grabación, enfoque)
-- Lectura/escritura de propiedades (ISO, apertura, velocidad, etc.)
-- Streaming de Live View (MJPEG)
-- Transferencia de contenido (descarga de fotos/videos)
-- **Control CNC/GRBL** (homing, movimientos G0/G1, parámetros)
-- Eventos en tiempo real (WebSocket/logs)
+- Camera discovery and connection via USB/Ethernet
+- Full remote control (capture, recording, focus)
+- Read/write properties (ISO, aperture, shutter speed, etc.)
+- Live View streaming (MJPEG)
+- Content transfer (download photos/videos)
+- **CNC/GRBL control** (homing, G0/G1 movements, parameters)
+- Real-time events (WebSocket/logs)
 
-## Cámaras Compatibles
+## Compatible Cameras
 
-- **Probado**: ILCE-7M4 (Alpha 7 IV)
-- **Compatibles**: Todas las cámaras soportadas por CrSDK v2.00.00
+- **Tested**: ILCE-7M4 (Alpha 7 IV)
+- **Compatible**: All cameras supported by CrSDK v2.00.00
 
 ---
 
-## Arquitectura
+## Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -55,12 +55,12 @@ Este servidor expone las funciones del Sony Camera Remote SDK v2.00.00 y control
 
 ---
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 rest_server/
 ├── CMakeLists.txt              # Build configuration
-├── README.md                   # Este archivo
+├── README.md                   # This file
 ├── include/
 │   ├── server/
 │   │   ├── RestServer.h        # HTTP server wrapper
@@ -75,7 +75,7 @@ rest_server/
 │   ├── grbl/
 │   │   ├── GrblController.h    # GRBL controller (singleton)
 │   │   └── SerialPort.h        # Serial port wrapper (Linux)
-│   └── util/                   # (futuro) utilidades
+│   └── util/                   # (future) utilities
 ├── src/
 │   ├── main.cpp                # Entry point
 │   ├── server/
@@ -98,9 +98,9 @@ rest_server/
 
 ---
 
-## Dependencias
+## Dependencies
 
-### Sistema (Ubuntu/Debian)
+### System (Ubuntu/Debian)
 
 ```bash
 sudo apt install -y \
@@ -113,10 +113,10 @@ sudo apt install -y \
     libxml2-dev
 ```
 
-### Bibliotecas Header-Only (incluidas)
+### Header-Only Libraries (included)
 
-| Biblioteca | Versión | Uso |
-|------------|---------|-----|
+| Library | Version | Usage |
+|---------|---------|-------|
 | [cpp-httplib](https://github.com/yhirose/cpp-httplib) | 0.15.3 | HTTP server |
 | [nlohmann/json](https://github.com/nlohmann/json) | 3.11.3 | JSON serialization |
 
@@ -127,57 +127,57 @@ sudo apt install -y \
 ```bash
 cd /home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC
 
-# Crear directorio de build
+# Create build directory
 mkdir -p build && cd build
 
-# Configurar (incluye REST server por defecto)
+# Configure (includes REST server by default)
 cmake -DCMAKE_BUILD_TYPE=Release ..
 
-# Compilar
+# Compile
 cmake --build . -j$(nproc)
 
-# Ejecutable generado
+# Generated executable
 ls -la rest_server/CrSDKRestServer
 ```
 
-### Opciones de CMake
+### CMake Options
 
-| Opción | Default | Descripción |
+| Option | Default | Description |
 |--------|---------|-------------|
-| `BUILD_REST_SERVER` | ON | Compilar el REST server |
+| `BUILD_REST_SERVER` | ON | Build the REST server |
 
 ---
 
-## Ejecución
+## Running
 
 ```bash
 cd build/rest_server
 
-# Ejecutar con opciones por defecto
+# Run with default options
 ./CrSDKRestServer
 
-# Con opciones personalizadas
+# With custom options
 ./CrSDKRestServer --host 0.0.0.0 --port 8080 --ws-port 8081
 
-# Ayuda
+# Help
 ./CrSDKRestServer --help
 ```
 
-### Opciones de línea de comandos
+### Command Line Options
 
-| Opción | Default | Descripción |
+| Option | Default | Description |
 |--------|---------|-------------|
-| `--host` | 0.0.0.0 | Dirección de bind |
-| `--port` | 8080 | Puerto HTTP |
-| `--ws-port` | 8081 | Puerto WebSocket |
+| `--host` | 0.0.0.0 | Bind address |
+| `--port` | 8080 | HTTP port |
+| `--ws-port` | 8081 | WebSocket port |
 
 ---
 
 ## API Reference
 
-### Respuesta estándar
+### Standard Response
 
-Todas las respuestas siguen este formato:
+All responses follow this format:
 
 ```json
 {
@@ -187,7 +187,7 @@ Todas las respuestas siguen este formato:
 }
 ```
 
-En caso de error:
+On error:
 
 ```json
 {
@@ -206,21 +206,21 @@ En caso de error:
 ### SDK Lifecycle
 
 #### POST /api/v1/sdk/init
-Inicializa el SDK de Sony.
+Initialize the Sony SDK.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/sdk/init
 ```
 
 #### POST /api/v1/sdk/release
-Libera recursos del SDK.
+Release SDK resources.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/sdk/release
 ```
 
 #### GET /api/v1/sdk/version
-Obtiene versión del SDK.
+Get SDK version.
 
 ```bash
 curl http://localhost:8080/api/v1/sdk/version
@@ -241,10 +241,10 @@ curl http://localhost:8080/api/v1/sdk/version
 
 ---
 
-### Cámaras
+### Cameras
 
 #### GET /api/v1/cameras
-Lista cámaras disponibles (escanea USB/red).
+List available cameras (scans USB/network).
 
 ```bash
 curl http://localhost:8080/api/v1/cameras
@@ -269,29 +269,29 @@ curl http://localhost:8080/api/v1/cameras
 ```
 
 #### GET /api/v1/cameras/connected
-Lista cámaras actualmente conectadas.
+List currently connected cameras.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/connected
 ```
 
 #### POST /api/v1/cameras/{index}/connect
-Conecta a una cámara.
+Connect to a camera.
 
 **Query params:**
 - `mode`: 0=Remote (default), 1=ContentsTransfer
 - `reconnect`: true/false (default: true)
 
 ```bash
-# Modo Remote (control)
+# Remote mode (control)
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=0"
 
-# Modo ContentsTransfer (descarga)
+# ContentsTransfer mode (download)
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=1"
 ```
 
 #### POST /api/v1/cameras/{index}/disconnect
-Desconecta una cámara.
+Disconnect a camera.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/cameras/0/disconnect
@@ -299,10 +299,10 @@ curl -X POST http://localhost:8080/api/v1/cameras/0/disconnect
 
 ---
 
-### Propiedades
+### Properties
 
 #### GET /api/v1/cameras/{index}/properties
-Obtiene todas las propiedades de la cámara.
+Get all camera properties.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/properties
@@ -325,11 +325,11 @@ curl http://localhost:8080/api/v1/cameras/0/properties
 }
 ```
 
-**Códigos de propiedades comunes:**
+**Common Property Codes:**
 
-| Código | Hex | Propiedad |
-|--------|-----|-----------|
-| 256 | 0x0100 | FNumber (apertura) |
+| Code | Hex | Property |
+|------|-----|----------|
+| 256 | 0x0100 | FNumber (aperture) |
 | 259 | 0x0103 | ShutterSpeed |
 | 260 | 0x0104 | IsoSensitivity |
 | 261 | 0x0105 | ExposureProgramMode |
@@ -340,10 +340,10 @@ curl http://localhost:8080/api/v1/cameras/0/properties
 | 1296 | 0x0510 | LiveView_Status |
 
 #### PUT /api/v1/cameras/{index}/properties/{code}
-Modifica una propiedad.
+Modify a property.
 
 ```bash
-# Cambiar ISO a 800
+# Change ISO to 800
 curl -X PUT http://localhost:8080/api/v1/cameras/0/properties/260 \
   -H "Content-Type: application/json" \
   -d '{"value": 800}'
@@ -351,10 +351,10 @@ curl -X PUT http://localhost:8080/api/v1/cameras/0/properties/260 \
 
 ---
 
-### Comandos
+### Commands
 
 #### POST /api/v1/cameras/{index}/command
-Envía un comando genérico.
+Send a generic command.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/cameras/0/command \
@@ -362,9 +362,9 @@ curl -X POST http://localhost:8080/api/v1/cameras/0/command \
   -d '{"commandId": 1, "param": 0}'
 ```
 
-**Comandos comunes:**
+**Common Commands:**
 
-| ID | Hex | Comando |
+| ID | Hex | Command |
 |----|-----|---------|
 | 1 | 0x0001 | Release (shutter) |
 | 2 | 0x0002 | MovieRecord |
@@ -374,35 +374,35 @@ curl -X POST http://localhost:8080/api/v1/cameras/0/command \
 | 518 | 0x0206 | Release Half Press |
 
 #### POST /api/v1/cameras/{index}/capture
-Captura una foto (shutter release).
+Capture a photo (shutter release).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/cameras/0/capture
 ```
 
 #### POST /api/v1/cameras/{index}/record/start
-Inicia grabación de video.
+Start video recording.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/cameras/0/record/start
 ```
 
 #### POST /api/v1/cameras/{index}/record/stop
-Detiene grabación de video.
+Stop video recording.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/cameras/0/record/stop
 ```
 
 #### POST /api/v1/cameras/{index}/focus
-Control de enfoque.
+Focus control.
 
 **Body:**
 - `action`: "near" | "far" | "track_start" | "track_stop"
-- `step`: 1-7 (opcional, para near/far)
+- `step`: 1-7 (optional, for near/far)
 
 ```bash
-# Enfocar más cerca
+# Focus closer
 curl -X POST http://localhost:8080/api/v1/cameras/0/focus \
   -H "Content-Type: application/json" \
   -d '{"action": "near", "step": 3}'
@@ -413,28 +413,28 @@ curl -X POST http://localhost:8080/api/v1/cameras/0/focus \
 ### Live View
 
 #### GET /api/v1/cameras/{index}/liveview/image
-Obtiene un frame JPEG del live view.
+Get a single JPEG frame from live view.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/liveview/image -o frame.jpg
 ```
 
 #### GET /api/v1/cameras/{index}/liveview/stream
-Stream MJPEG continuo (para navegador o VLC).
+Continuous MJPEG stream (for browser or VLC).
 
 ```bash
-# Abrir en navegador
+# Open in browser
 http://localhost:8080/api/v1/cameras/0/liveview/stream
 
-# Con VLC
+# With VLC
 vlc http://localhost:8080/api/v1/cameras/0/liveview/stream
 
-# Con ffmpeg
+# With ffmpeg
 ffmpeg -i http://localhost:8080/api/v1/cameras/0/liveview/stream -c copy output.mkv
 ```
 
 #### GET /api/v1/cameras/{index}/liveview/info
-Información del estado del live view.
+Live view status information.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/liveview/info
@@ -442,40 +442,40 @@ curl http://localhost:8080/api/v1/cameras/0/liveview/info
 
 ---
 
-### Transferencia de Contenido
+### Content Transfer
 
-> **Nota:** Requiere conexión en modo ContentsTransfer (`mode=1`)
+> **Note:** Requires connection in ContentsTransfer mode (`mode=1`)
 
 #### GET /api/v1/cameras/{index}/contents/folders
-Lista carpetas en la tarjeta SD.
+List folders on the SD card.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/contents/folders
 ```
 
 #### GET /api/v1/cameras/{index}/contents/folders/{folderHandle}
-Lista contenidos de una carpeta.
+List contents of a folder.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/contents/folders/1
 ```
 
 #### GET /api/v1/cameras/{index}/contents/{contentHandle}
-Información de un archivo.
+File information.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/contents/12345
 ```
 
 #### GET /api/v1/cameras/{index}/contents/{contentHandle}/download
-Descarga un archivo.
+Download a file.
 
 ```bash
-curl http://localhost:8080/api/v1/cameras/0/contents/12345/download -o foto.jpg
+curl http://localhost:8080/api/v1/cameras/0/contents/12345/download -o photo.jpg
 ```
 
 #### GET /api/v1/cameras/{index}/contents/{contentHandle}/thumbnail
-Obtiene thumbnail de un archivo.
+Get file thumbnail.
 
 ```bash
 curl http://localhost:8080/api/v1/cameras/0/contents/12345/thumbnail -o thumb.jpg
@@ -507,12 +507,12 @@ curl http://localhost:8080/api/v1/health
 
 ## GRBL/CNC Control
 
-Control de máquinas CNC con firmware GRBL (Arduino) a través de puerto serial.
+Control CNC machines with GRBL firmware (Arduino) via serial port.
 
-### Conexión GRBL
+### GRBL Connection
 
 #### GET /api/v1/grbl/ports
-Lista puertos seriales disponibles.
+List available serial ports.
 
 ```bash
 curl http://localhost:8080/api/v1/grbl/ports
@@ -529,13 +529,13 @@ curl http://localhost:8080/api/v1/grbl/ports
 ```
 
 #### POST /api/v1/grbl/connect
-Conecta al dispositivo GRBL.
+Connect to GRBL device.
 
 ```bash
-# Auto-detectar puerto
+# Auto-detect port
 curl -X POST http://localhost:8080/api/v1/grbl/connect
 
-# Puerto específico
+# Specific port
 curl -X POST http://localhost:8080/api/v1/grbl/connect \
   -H "Content-Type: application/json" \
   -d '{"port": "/dev/ttyUSB0", "baudRate": 115200}'
@@ -554,7 +554,7 @@ curl -X POST http://localhost:8080/api/v1/grbl/connect \
 ```
 
 #### POST /api/v1/grbl/disconnect
-Desconecta del dispositivo GRBL.
+Disconnect from GRBL device.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/disconnect
@@ -562,10 +562,10 @@ curl -X POST http://localhost:8080/api/v1/grbl/disconnect
 
 ---
 
-### Estado GRBL
+### GRBL Status
 
 #### GET /api/v1/grbl/status
-Obtiene estado actual (posición, estado de la máquina).
+Get current status (position, machine state).
 
 ```bash
 curl http://localhost:8080/api/v1/grbl/status
@@ -586,58 +586,58 @@ curl http://localhost:8080/api/v1/grbl/status
 }
 ```
 
-**Estados GRBL:**
+**GRBL States:**
 
-| Estado | Descripción |
-|--------|-------------|
-| `Idle` | Listo, esperando comandos |
-| `Run` | Ejecutando movimiento |
-| `Hold` | Pausado (feed hold) |
-| `Jog` | Modo jog activo |
-| `Alarm` | Alarma activa (requiere $X) |
-| `Door` | Puerta de seguridad abierta |
-| `Check` | Modo verificación G-code |
-| `Home` | Ejecutando homing |
-| `Sleep` | Modo sleep |
+| State | Description |
+|-------|-------------|
+| `Idle` | Ready, waiting for commands |
+| `Run` | Executing movement |
+| `Hold` | Paused (feed hold) |
+| `Jog` | Jog mode active |
+| `Alarm` | Alarm active (requires $X) |
+| `Door` | Safety door open |
+| `Check` | G-code check mode |
+| `Home` | Executing homing |
+| `Sleep` | Sleep mode |
 
 ---
 
-### Movimiento
+### Movement
 
 #### POST /api/v1/grbl/home
-Ejecuta ciclo de homing ($H).
+Execute homing cycle ($H).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/home
 ```
 
 #### POST /api/v1/grbl/move
-Ejecuta movimiento G0 (rápido) o G1 (lineal).
+Execute G0 (rapid) or G1 (linear) movement.
 
 ```bash
-# Movimiento rápido G0
+# Rapid movement G0
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -H "Content-Type: application/json" \
   -d '{"type": "G0", "x": 100, "y": 50}'
 
-# Movimiento lineal G1 con feed rate
+# Linear movement G1 with feed rate
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -H "Content-Type: application/json" \
   -d '{"type": "G1", "x": 100, "y": 50, "z": -5, "feed": 500}'
 ```
 
-**Parámetros:**
+**Parameters:**
 
-| Campo | Tipo | Descripción |
+| Field | Type | Description |
 |-------|------|-------------|
-| `type` | string | "G0" (rapid) o "G1" (linear) |
-| `x` | number/null | Posición X (opcional) |
-| `y` | number/null | Posición Y (opcional) |
-| `z` | number/null | Posición Z (opcional) |
-| `feed` | number | Feed rate en mm/min (solo G1) |
+| `type` | string | "G0" (rapid) or "G1" (linear) |
+| `x` | number/null | X position (optional) |
+| `y` | number/null | Y position (optional) |
+| `z` | number/null | Z position (optional) |
+| `feed` | number | Feed rate in mm/min (G1 only) |
 
 #### POST /api/v1/grbl/jog
-Jog incremental en un eje.
+Incremental jog on an axis.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/jog \
@@ -650,28 +650,28 @@ curl -X POST http://localhost:8080/api/v1/grbl/jog \
 ### Control
 
 #### POST /api/v1/grbl/stop
-Feed hold - pausa el movimiento actual (!).
+Feed hold - pause current movement (!).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/stop
 ```
 
 #### POST /api/v1/grbl/resume
-Cycle start - reanuda después de hold (~).
+Cycle start - resume after hold (~).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/resume
 ```
 
 #### POST /api/v1/grbl/reset
-Soft reset - reinicia GRBL (0x18).
+Soft reset - reset GRBL (0x18).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/reset
 ```
 
 #### POST /api/v1/grbl/unlock
-Desbloquea después de alarma ($X).
+Unlock after alarm ($X).
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/unlock
@@ -679,10 +679,10 @@ curl -X POST http://localhost:8080/api/v1/grbl/unlock
 
 ---
 
-### Parámetros GRBL
+### GRBL Parameters
 
 #### GET /api/v1/grbl/settings
-Lista todos los parámetros GRBL ($$).
+List all GRBL parameters ($$).
 
 ```bash
 curl http://localhost:8080/api/v1/grbl/settings
@@ -707,9 +707,9 @@ curl http://localhost:8080/api/v1/grbl/settings
 }
 ```
 
-**Parámetros GRBL comunes:**
+**Common GRBL Parameters:**
 
-| ID | Descripción |
+| ID | Description |
 |----|-------------|
 | $0 | Step pulse time (us) |
 | $1 | Step idle delay (ms) |
@@ -725,10 +725,10 @@ curl http://localhost:8080/api/v1/grbl/settings
 | $130-132 | Max travel mm (X, Y, Z) |
 
 #### PUT /api/v1/grbl/settings/{id}
-Modifica un parámetro GRBL.
+Modify a GRBL parameter.
 
 ```bash
-# Cambiar steps/mm del eje X
+# Change X axis steps/mm
 curl -X PUT http://localhost:8080/api/v1/grbl/settings/100 \
   -H "Content-Type: application/json" \
   -d '{"value": 300.0}'
@@ -736,10 +736,10 @@ curl -X PUT http://localhost:8080/api/v1/grbl/settings/100 \
 
 ---
 
-### Comando Raw
+### Raw Command
 
 #### POST /api/v1/grbl/command
-Envía comando G-code arbitrario.
+Send arbitrary G-code command.
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/grbl/command \
@@ -760,31 +760,31 @@ curl -X POST http://localhost:8080/api/v1/grbl/command \
 
 ---
 
-### Workflow CNC Típico
+### Typical CNC Workflow
 
 ```bash
-# 1. Conectar
+# 1. Connect
 curl -X POST http://localhost:8080/api/v1/grbl/connect
 
-# 2. Verificar estado
+# 2. Check status
 curl http://localhost:8080/api/v1/grbl/status
 
-# 3. Hacer homing (si hay limit switches)
+# 3. Home (if limit switches present)
 curl -X POST http://localhost:8080/api/v1/grbl/home
 
-# 4. Configurar modo absoluto y milímetros
+# 4. Set absolute mode and millimeters
 curl -X POST http://localhost:8080/api/v1/grbl/command \
   -d '{"command": "G90 G21"}'
 
-# 5. Mover a posición inicial
+# 5. Move to starting position
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -d '{"type": "G0", "x": 0, "y": 0, "z": 5}'
 
-# 6. Bajar herramienta
+# 6. Lower tool
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -d '{"type": "G1", "z": -2, "feed": 100}'
 
-# 7. Cortar un cuadrado
+# 7. Cut a square
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -d '{"type": "G1", "x": 50, "feed": 500}'
 curl -X POST http://localhost:8080/api/v1/grbl/move \
@@ -794,7 +794,7 @@ curl -X POST http://localhost:8080/api/v1/grbl/move \
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -d '{"type": "G1", "y": 0, "feed": 500}'
 
-# 8. Subir herramienta y volver a origen
+# 8. Raise tool and return to origin
 curl -X POST http://localhost:8080/api/v1/grbl/move \
   -d '{"type": "G0", "z": 5}'
 curl -X POST http://localhost:8080/api/v1/grbl/move \
@@ -803,17 +803,17 @@ curl -X POST http://localhost:8080/api/v1/grbl/move \
 
 ---
 
-## Modos de Conexión
+## Connection Modes
 
-El SDK soporta dos modos de operación exclusivos:
+The SDK supports two mutually exclusive operation modes:
 
 ### Remote Mode (mode=0)
 
-Para control remoto de la cámara:
-- Captura de fotos/video
-- Control de propiedades
+For camera remote control:
+- Photo/video capture
+- Property control
 - Live view streaming
-- Comandos de enfoque
+- Focus commands
 
 ```bash
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=0"
@@ -821,60 +821,60 @@ curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=0"
 
 ### ContentsTransfer Mode (mode=1)
 
-Para transferencia de archivos:
-- Listar carpetas y archivos
-- Descargar fotos/videos
-- Obtener thumbnails
+For file transfer:
+- List folders and files
+- Download photos/videos
+- Get thumbnails
 
 ```bash
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=1"
 ```
 
-### Workflow: Capturar y Descargar
+### Workflow: Capture and Download
 
 ```bash
-# 1. Conectar en modo Remote
+# 1. Connect in Remote mode
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=0"
 
-# 2. Capturar foto
+# 2. Capture photo
 curl -X POST http://localhost:8080/api/v1/cameras/0/capture
 
-# 3. Desconectar
+# 3. Disconnect
 curl -X POST http://localhost:8080/api/v1/cameras/0/disconnect
 
-# 4. Reconectar en ContentsTransfer
+# 4. Reconnect in ContentsTransfer mode
 curl -X POST "http://localhost:8080/api/v1/cameras/0/connect?mode=1"
 
-# 5. Listar carpetas
+# 5. List folders
 curl http://localhost:8080/api/v1/cameras/0/contents/folders
 
-# 6. Listar contenido (usar handle de paso 5)
+# 6. List contents (use handle from step 5)
 curl http://localhost:8080/api/v1/cameras/0/contents/folders/1
 
-# 7. Descargar (usar handle de paso 6)
-curl http://localhost:8080/api/v1/cameras/0/contents/12345/download -o foto.jpg
+# 7. Download (use handle from step 6)
+curl http://localhost:8080/api/v1/cameras/0/contents/12345/download -o photo.jpg
 ```
 
 ---
 
 ## WebSocket Events
 
-> **Nota:** Actualmente implementado como stub (logs a consola).
-> WebSocket real requiere biblioteca compatible con Boost 1.83+.
+> **Note:** Currently implemented as stub (logs to console).
+> Real WebSocket requires library compatible with Boost 1.83+.
 
-### Eventos disponibles
+### Available Events
 
-| Evento | Descripción |
-|--------|-------------|
-| `connected` | Cámara conectada |
-| `disconnected` | Cámara desconectada |
-| `property_changed` | Propiedad modificada |
-| `lv_property_changed` | Propiedad de live view cambiada |
-| `capture_complete` | Captura completada |
-| `error` | Error del SDK |
-| `warning` | Advertencia |
+| Event | Description |
+|-------|-------------|
+| `connected` | Camera connected |
+| `disconnected` | Camera disconnected |
+| `property_changed` | Property modified |
+| `lv_property_changed` | Live view property changed |
+| `capture_complete` | Capture completed |
+| `error` | SDK error |
+| `warning` | Warning |
 
-### Formato de evento
+### Event Format
 
 ```json
 {
@@ -889,22 +889,22 @@ curl http://localhost:8080/api/v1/cameras/0/contents/12345/download -o foto.jpg
 
 ---
 
-## Códigos de Error HTTP
+## HTTP Error Codes
 
-| Código | Significado |
-|--------|-------------|
+| Code | Meaning |
+|------|---------|
 | 200 | OK |
-| 400 | Bad Request (parámetros inválidos) |
-| 403 | Forbidden (conexión rechazada) |
-| 404 | Not Found (cámara no encontrada) |
-| 409 | Conflict (cámara ocupada) |
+| 400 | Bad Request (invalid parameters) |
+| 403 | Forbidden (connection rejected) |
+| 404 | Not Found (camera not found) |
+| 409 | Conflict (camera busy) |
 | 500 | Internal Server Error |
-| 503 | Service Unavailable (SDK no disponible) |
-| 504 | Gateway Timeout (timeout de conexión) |
+| 503 | Service Unavailable (SDK unavailable) |
+| 504 | Gateway Timeout (connection timeout) |
 
 ---
 
-## Ejemplos de Integración
+## Integration Examples
 
 ### Python
 
@@ -913,17 +913,17 @@ import requests
 
 BASE_URL = "http://localhost:8080/api/v1"
 
-# Listar cámaras
+# List cameras
 cameras = requests.get(f"{BASE_URL}/cameras").json()
 print(cameras)
 
-# Conectar
+# Connect
 requests.post(f"{BASE_URL}/cameras/0/connect")
 
-# Capturar
+# Capture
 requests.post(f"{BASE_URL}/cameras/0/capture")
 
-# Obtener frame de live view
+# Get live view frame
 response = requests.get(f"{BASE_URL}/cameras/0/liveview/image")
 with open("frame.jpg", "wb") as f:
     f.write(response.content)
@@ -937,10 +937,10 @@ const fetch = require('node-fetch');
 const BASE_URL = 'http://localhost:8080/api/v1';
 
 async function capturePhoto() {
-  // Conectar
+  // Connect
   await fetch(`${BASE_URL}/cameras/0/connect`, { method: 'POST' });
 
-  // Capturar
+  // Capture
   const result = await fetch(`${BASE_URL}/cameras/0/capture`, { method: 'POST' });
   console.log(await result.json());
 }
@@ -954,7 +954,7 @@ capturePhoto();
 #!/bin/bash
 BASE="http://localhost:8080/api/v1"
 
-# Conectar y capturar 5 fotos
+# Connect and capture 5 photos
 curl -X POST "$BASE/cameras/0/connect"
 
 for i in {1..5}; do
@@ -969,66 +969,66 @@ curl -X POST "$BASE/cameras/0/disconnect"
 
 ## Troubleshooting
 
-### La cámara no aparece
+### Camera not detected
 
-1. Verificar conexión USB
-2. Verificar permisos: `sudo chmod 666 /dev/bus/usb/*/*`
-3. En la cámara: Menu > Network > PC Remote Function > PC Remote > ON
+1. Check USB connection
+2. Check permissions: `sudo chmod 666 /dev/bus/usb/*/*`
+3. On camera: Menu > Network > PC Remote Function > PC Remote > ON
 
-### Error de conexión
+### Connection error
 
-1. Desconectar y reconectar USB
-2. Reiniciar el servidor
-3. Verificar que no hay otra aplicación usando la cámara
+1. Disconnect and reconnect USB
+2. Restart the server
+3. Verify no other application is using the camera
 
-### Live view no funciona
+### Live view not working
 
-1. Verificar que la cámara está en modo Remote
-2. Algunos modos de la cámara deshabilitan live view
-3. Verificar propiedad `LiveView_Status` (código 1296)
+1. Verify camera is in Remote mode
+2. Some camera modes disable live view
+3. Check `LiveView_Status` property (code 1296)
 
-### GRBL no detecta el puerto
+### GRBL port not detected
 
-1. Verificar que el Arduino está conectado: `ls /dev/ttyUSB* /dev/ttyACM*`
-2. Verificar permisos: `sudo chmod 666 /dev/ttyUSB0` o agregar usuario al grupo `dialout`
-3. Verificar que no hay otra aplicación usando el puerto (Arduino IDE, etc.)
+1. Verify Arduino is connected: `ls /dev/ttyUSB* /dev/ttyACM*`
+2. Check permissions: `sudo chmod 666 /dev/ttyUSB0` or add user to `dialout` group
+3. Verify no other application is using the port (Arduino IDE, etc.)
 
-### GRBL en estado Alarm
+### GRBL in Alarm state
 
-1. Ejecutar unlock: `curl -X POST http://localhost:8080/api/v1/grbl/unlock`
-2. Si persiste, hacer soft reset: `curl -X POST http://localhost:8080/api/v1/grbl/reset`
-3. Verificar limit switches y conexiones
+1. Execute unlock: `curl -X POST http://localhost:8080/api/v1/grbl/unlock`
+2. If it persists, do soft reset: `curl -X POST http://localhost:8080/api/v1/grbl/reset`
+3. Check limit switches and connections
 
-### Movimientos no responden
+### Movements not responding
 
-1. Verificar estado: `curl http://localhost:8080/api/v1/grbl/status`
-2. Si está en Hold, hacer resume: `curl -X POST http://localhost:8080/api/v1/grbl/resume`
-3. Verificar que los valores de feed rate son razonables (ej: 100-5000 mm/min)
+1. Check status: `curl http://localhost:8080/api/v1/grbl/status`
+2. If in Hold, resume: `curl -X POST http://localhost:8080/api/v1/grbl/resume`
+3. Verify feed rate values are reasonable (e.g., 100-5000 mm/min)
 
 ---
 
-## Desarrollo Futuro
+## Future Development
 
-- [ ] WebSocket real con biblioteca compatible
-- [ ] Descarga automática post-captura
-- [ ] Autenticación (API keys)
+- [ ] Real WebSocket with compatible library
+- [ ] Automatic post-capture download
+- [ ] Authentication (API keys)
 - [ ] Rate limiting
-- [ ] Soporte multi-cámara simultáneo mejorado
-- [ ] Documentación OpenAPI/Swagger
-- [ ] Contenedor Docker
-- [x] ~~Control CNC/GRBL~~ (implementado)
-- [ ] G-code file streaming para CNC
-- [ ] Coordinación cámara-CNC (timelapse automatizado)
+- [ ] Improved multi-camera simultaneous support
+- [ ] OpenAPI/Swagger documentation
+- [ ] Docker container
+- [x] ~~CNC/GRBL control~~ (implemented)
+- [ ] G-code file streaming for CNC
+- [ ] Camera-CNC coordination (automated timelapse)
 
 ---
 
-## Licencia
+## License
 
-Este proyecto utiliza el Sony Camera Remote SDK bajo los términos de licencia de Sony.
+This project uses the Sony Camera Remote SDK under Sony's license terms.
 
 ---
 
-## Créditos
+## Credits
 
 - **Sony Camera Remote SDK** v2.00.00
 - **cpp-httplib** - Yuji Hirose
@@ -1036,4 +1036,4 @@ Este proyecto utiliza el Sony Camera Remote SDK bajo los términos de licencia d
 
 ---
 
-*Generado para CrSDK REST API Server - Sony ILCE-7M4*
+*Generated for CrSDK REST API Server - Sony ILCE-7M4*

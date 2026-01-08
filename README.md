@@ -1007,6 +1007,141 @@ curl -X POST "$BASE/cameras/0/disconnect"
 
 ---
 
+## Deployment
+
+### Systemd Service
+
+The server runs as a systemd service for automatic startup and management.
+
+**Service file:** `/etc/systemd/system/arisapi.service`
+
+```ini
+[Unit]
+Description=ArisAPI REST Server (Sony CrSDK + GRBL)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/build/rest_server
+ExecStart=/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/build/rest_server/CrSDKRestServer
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=LD_LIBRARY_PATH=/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/build/rest_server
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Setup commands:**
+```bash
+# Copy service file
+sudo cp arisapi.service /etc/systemd/system/
+
+# Reload systemd
+sudo systemctl daemon-reload
+
+# Enable auto-start on boot
+sudo systemctl enable arisapi.service
+
+# Start service
+sudo systemctl start arisapi.service
+```
+
+**Management commands:**
+```bash
+# Check status
+systemctl status arisapi.service
+
+# View logs (live)
+journalctl -u arisapi.service -f
+
+# Restart
+systemctl restart arisapi.service
+
+# Stop
+systemctl stop arisapi.service
+```
+
+---
+
+### Auto-Sync from GitHub
+
+The server automatically pulls changes from GitHub every 5 minutes and restarts if new code is detected.
+
+**Flow:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Cron (every 5 min)                       │
+│                            │                                 │
+│                            ▼                                 │
+│                    git-sync.sh                               │
+│                            │                                 │
+│              ┌─────────────┴─────────────┐                   │
+│              │                           │                   │
+│              ▼                           ▼                   │
+│        No changes                  Changes found             │
+│        (do nothing)                      │                   │
+│                                          ▼                   │
+│                                    git pull                  │
+│                                          │                   │
+│                                          ▼                   │
+│                                    cmake --build             │
+│                                          │                   │
+│                                          ▼                   │
+│                              systemctl restart arisapi       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Setup:**
+```bash
+# Add cron job (runs every 5 minutes)
+(crontab -l 2>/dev/null; echo "*/5 * * * * /home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/rest_server/git-sync.sh") | crontab -
+```
+
+**Sync script:** `git-sync.sh`
+```bash
+#!/bin/bash
+REPO_DIR="/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/rest_server"
+BUILD_DIR="/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/build"
+LOG_FILE="/var/log/arisapi-git-sync.log"
+SERVICE_NAME="arisapi.service"
+
+cd "$REPO_DIR" || exit 1
+
+git fetch origin main 2>&1
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+
+if [ "$LOCAL" != "$REMOTE" ]; then
+    echo "[$(date)] Pulling updates..." >> "$LOG_FILE"
+    git pull origin main >> "$LOG_FILE" 2>&1
+
+    echo "[$(date)] Rebuilding..." >> "$LOG_FILE"
+    cd "$BUILD_DIR" && cmake --build . --target CrSDKRestServer >> "$LOG_FILE" 2>&1
+
+    if [ $? -eq 0 ]; then
+        systemctl restart "$SERVICE_NAME"
+        echo "[$(date)] Service restarted." >> "$LOG_FILE"
+    else
+        echo "[$(date)] ERROR: Build failed!" >> "$LOG_FILE"
+    fi
+fi
+```
+
+**Monitor sync:**
+```bash
+# View sync log
+tail -f /var/log/arisapi-git-sync.log
+
+# Force immediate sync
+/home/resonance/CrSDK_v2.00.00_20251030a_Linux64PC/rest_server/git-sync.sh
+```
+
+---
+
 ## Future Development
 
 - [ ] Real WebSocket with compatible library
